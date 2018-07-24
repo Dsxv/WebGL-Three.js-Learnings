@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+  <head>
+    <meta charset="utf-8">
+    <title>THREE</title>
+    <style media="screen">
+          body{
+            padding:0;
+            margin:0 ;
+          }
+
+      canvas{
+        height:100vh;
+        width:100vw;
+      }
+    </style>
+  </head>
+  <body>
+
+
+    <script type="text/javascript" src="three.js">    </script>
+    <script type="text/javascript" src="dat.gui.min.js">    </script>
+    <script type="text/javascript" src="OrbitControls.js">    </script>
+
+    <script type="text/javascript">
+   var scene = new THREE.Scene() ;
+   var camera = new THREE.PerspectiveCamera(70,window.innerWidth/window.innerHeight,.1,1000) ;
+   camera.position.set(10,10,10) ;
+
+   var renderer = new THREE.WebGLRenderer({antialias:true}) ;
+   renderer.setSize(window.innerWidth,window.innerHeight) ;
+   renderer.shadowMap.enabled = true;
+   renderer.shadowMap.type =  THREE.BasicShadowMap ;
+
+
+
+   document.body.appendChild(renderer.domElement) ;
+   var controls = new THREE.OrbitControls(camera);
+
+
+   document.addEventListener("resize",function(){
+     renderer.SetSize(window.innerWidth, window.innerHeight) ;
+     camera.updateProjectionMatrix() ;
+     camera.aspect = window.innerWidth/window.innerHeight ;
+
+   } ) ;
+
+
+  var obj = {
+  position : 1
+}
+var datgui = new dat.GUI() ;
+datgui.add(obj, 'position',-10,10).name("PositionX") ;
+
+
+var axeshelper = new THREE.AxesHelper(10) ;
+scene.add(axeshelper) ;
+
+var ambientLight = new THREE.AmbientLight(0xffffff);
+ambientLight.intensity = .1 ;
+scene.add(ambientLight) ;
+
+var pointLight = new THREE.PointLight(0xffffff,1) ;
+pointLight.position.set(0,10,0) ;
+pointLight.castShadow = true ;
+scene.add(pointLight) ;
+
+plHelper = new THREE.PointLightHelper(pointLight,) ;
+scene.add(plHelper) ;
+
+
+
+function createfloor(){
+  var floor_texture = new THREE.TextureLoader().load("texture/hardwood2_diffuse.jpg");
+  floor_texture.wrapT = THREE.RepeatWrapping;
+  floor_texture.wrapS = THREE.RepeatWrapping;
+  floor_texture.repeat.set( 10, 10 );
+  floor_texture.anisotropy = 16 ;
+
+  var floor_bump = new THREE.TextureLoader().load("texture/hardwood2_bump.jpg");
+  floor_bump.wrapT = THREE.RepeatWrapping;
+  floor_bump.wrapS = THREE.RepeatWrapping;
+  floor_bump.repeat.set( 10, 10 );
+
+  var floor_roughness = new THREE.TextureLoader().load("texture/hardwood2_roughness.jpg");
+  floor_roughness.wrapT = THREE.RepeatWrapping;
+  floor_roughness.wrapS = THREE.RepeatWrapping;
+  floor_roughness.repeat.set( 10, 10 );
+
+
+
+  var floor_material = new THREE.MeshStandardMaterial({map:floor_texture,side:THREE.DoubleSide, bumpMap:floor_bump,roughnessMap:floor_roughness
+  }) ;
+  floor_material.bumpScale = .1;
+ floor_material.roughness = 1.8 ;
+
+
+  var floor = new THREE.Mesh(new THREE.PlaneGeometry(100,100,10,10),floor_material) ;
+  floor.rotation.x = Math.PI/2;
+  floor.bumpScale = .07  ;
+    floor.receiveShadow = true;
+  scene.add(floor) ;
+
+
+}
+createfloor() ;
+var wtexture =  new THREE.TextureLoader().load("texture/brick_diffuse.jpg")
+ wtexture.anisotropy = 16 ;
+var wbump = new THREE.TextureLoader().load("texture/brick_bump.jpg") ;
+var wrough = new THREE.TextureLoader().load("texture/brick_roughness.jpg") ;
+var wall_material = new THREE.MeshStandardMaterial({map:wtexture,bumpMap:wbump,roughnessMap:wrough}) ;
+wall_material.bumpScale=.1;
+wall_material.metalness = .1;
+wall_material.hardness = .8;
+  var wall = new THREE.Mesh(new THREE.BoxGeometry(10,10,2),wall_material) ;
+  wall.position.set(-20,5,-20) ;
+  wall.castShadow = true ;
+  wall.receiveShadow = true ;
+  scene.add(wall) ;
+
+console.log(wall) ;
+   wall.addEventListener("click" , function(){
+     console.log("clicked") ;
+   })
+
+var k=0 ;
+  function animate(){
+    requestAnimationFrame(animate) ;
+      k=k+Math.PI/180;
+    pointLight.position.y =10+ 5*Math.sin(k);
+    pointLight.position.x =  obj.position;
+    render() ;
+  }
+
+
+  function render(){
+
+
+
+
+  
+    controls.update() ;
+    renderer.render(scene , camera) ;
+
+  }
+  animate() ;
+    </script>
+  </body>
+</html>
